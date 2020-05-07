@@ -5,11 +5,10 @@ Created on Fri May  1 18:50:44 2020
 @author: lilph
 """
 
-
 # Banking Marketing Analysis
 import sklearn
 import pickle
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn import preprocessing
 from sklearn import model_selection
 from sklearn.linear_model import LogisticRegression
@@ -18,6 +17,7 @@ import pandas as pd
 #import pylab as plb
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 plt.style.use('ggplot')
 %matplotlib inline
 
@@ -77,11 +77,33 @@ sns.distplot(data.cons_price_idx).set_title('Con Price Index Distribution')
 # Cons conf index
 sns.distplot(data.cons_conf_idx).set_title('Con Conf Index Distribution')
 
-# Euribor3m
-sns.countplot(x='euribor3m', data=data).set_title('Euribor3m')
-'euribor3m', 'nr_employed'
+# Euro Interbank Offered Rate
+sns.lineplot(x='month', y='euribor3m', data=data).set_title('Euribor 3M Timeseries')
+
+# Number of employees
+sns.lineplot(x='month', y='nr_employed', data=data).set_title('Number of Employees')
+
+def preProcess(data):
+    # Get numeric columns
+    num_cols = data._get_numeric_data().columns
+    # Get categorical columns
+    cat_cols = list(set(data.columns) - set(num_cols))
+    
+    # Scale and OHE
+    scaler = StandardScaler()
+    ohe = OneHotEncoder(sparse=False)
+    
+    scaled_columns = scaler.fit_transform(data[num_cols])
+    encoded_columns = ohe.fit_transform(data[cat_cols])
+
+    processed_data = np.concatenate([scaled_columns, encoded_columns], axis=1)
+
+    return processed_data
 
 if __name__=="__main__": 
     data = pd.read_csv('marketing_data.csv')
-    print(data.describe())
-    print(data.isnull().sum())
+    processed = preProcess(data)    
+    
+    
+    
+
