@@ -88,6 +88,8 @@ def preProcess(data):
     num_cols = data._get_numeric_data().columns
     # Get categorical columns
     cat_cols = list(set(data.columns) - set(num_cols))
+    # Set tareget
+    target = data['y']
     
     # Scale
     scaler = StandardScaler()
